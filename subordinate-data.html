@@ -1,0 +1,872 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Subordinate Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&icon_names=arrow_forward_ios,expand_more" />
+    <style>
+        body {
+            background: #f5f6fa;
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .header {
+            background: #fd7a7a;
+            padding: 16px 0;
+            text-align: center;
+            font-size: 20px;
+            font-weight: 500;
+            position: relative;
+            border-bottom: 1px solid #eee;
+        }
+        .header .back {
+            position: absolute;
+            left: 16px;
+            top: 16px;
+            font-size: 22px;
+            color: #333;
+            text-decoration: none;
+        }
+        .search-bar {
+            display: flex;
+            align-items: center;
+            background: #fff;
+            margin: 10px 12px 8px 12px;
+            border-radius: 8px;
+            padding: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+        }
+        .search-bar input {
+            border: none;
+            outline: none;
+            flex: 1;
+            font-size: 13px;
+            background: transparent;
+            padding: 8px;
+        }
+        .search-bar button {
+            background: #1976d2;
+            border: none;
+            color: #fff;
+            border-radius: 30%;
+            width: 38px;
+            height: 28px;
+            font-size: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin: 0 12px 10px 12px;
+        }
+        .filters select {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: 1px solid #eee;
+            background: #fff;
+            font-size: 12px;
+        }
+        .filters button {
+            background: #1976d2;
+            color: #fff;
+        }
+        .stats-box {
+            background: #1976d2;
+            color: #fff;
+            border-radius: 12px;
+            margin: 0 12px 16px 12px;
+            padding: 20px 4px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-row-gap: 16px;
+            grid-column-gap: 0;
+            font-size: 11.5px;
+            min-height: 160px;
+        }
+        .stats-box .stat {
+            text-align: center;
+        }
+        .stats-box .stat .value {
+            font-size: 13px;
+            font-weight: bold;
+        }
+        .stats-box .stat .value.deposit-number {
+            color: #fff !important;
+        }
+        .stats-box .stat .value.deposit-amount {
+            color: #fff !important;
+        }
+        .stats-col .time-value {
+            color: #666;  /* Grey color */
+            font-size: 12px;  /* Smaller size */
+            font-weight: normal;
+        }
+        .no-data {
+            text-align: center;
+            color: #bbb;
+            margin-top: 32px;
+            font-size: 13px;
+        }
+        .no-data-img {
+            display: none;
+        }
+        .no-data-icon {
+            display: none;
+        }
+        .date-modal-overlay {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0; top: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.18);
+            justify-content: center;
+            align-items: flex-end;
+        }
+        .date-modal-overlay.active {
+            display: flex;
+        }
+        .date-modal {
+            width: 100vw;
+            max-width: 500px;
+            background: #fff;
+            border-radius: 18px 18px 0 0;
+            padding: 0 0 10px 0;
+            position: relative;
+            min-height: 370px;
+        }
+        .date-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 18px 10px 18px;
+            font-size: 17px;
+            font-weight: 500;
+        }
+        .date-modal-header .cancel {
+            color: #888;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        .date-modal-header .confirm {
+            color: #d65959;
+            font-size: 16px;
+            cursor: pointer;
+            font-weight: 400;
+        }
+        .date-modal-header .title {
+            color: #c53f41;
+            font-size: 18px;
+            font-weight: bold;
+            flex: 1;
+            text-align: center;
+            letter-spacing: 0.5px;
+        }
+        .date-picker-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 0 10px 0;
+            margin: 0 10px;
+            position: relative;
+            height: 260px;
+        }
+        .picker-col {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-y: scroll;
+            height: 220px;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            position: relative;
+        }
+        .picker-col::-webkit-scrollbar {
+            display: none;
+        }
+        .picker-item {
+            font-size: 20px;
+            color: #b0b0b0;
+            padding: 7px 0;
+            text-align: center;
+            min-height: 32px;
+            transition: color 0.15s, font-weight 0.15s;
+            font-weight: 400;
+            user-select: none;
+        }
+        .picker-item.selected {
+            color: #222;
+            font-weight: bold;
+            font-size: 22px;
+            background: #e3f0fb;
+            border-radius: 8px;
+        }
+        .picker-col:not(:last-child) {
+            border-right: 1px solid #f2f2f2;
+        }
+        .picker-highlight {
+            position: absolute;
+            left: 0; right: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            height: 32px;
+            background: rgba(0,0,0,0.03);
+            border-radius: 8px;
+            pointer-events: none;
+            z-index: 2;
+        }
+        .loading-spinner {
+            display: none;
+            margin: 12px auto 0 auto;
+            width: 22px;
+            height: 22px;
+            border: 3px solid #e0e0e0;
+            border-top: 3px solid #bdbdbd;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg);}
+            100% { transform: rotate(360deg);}
+        }
+        .tier-option.selected {
+            color: #222 !important;
+            font-weight: bold !important;
+            background: #e3f0fb;
+            border-radius: 8px;
+        }
+        .tier-option {
+            cursor: pointer;
+            transition: background 0.15s, color 0.15s;
+            font-size: 18px;
+            padding: 12px 0;
+            width: 100%;
+            text-align: center;
+            color: #b0b0b0;
+            user-select: none;
+        }
+        .tier-picker-col::-webkit-scrollbar {
+            display: none;
+        }
+        * {
+            -webkit-tap-highlight-color: transparent;
+            outline: none;
+        }
+
+        button, 
+        input,
+        select,
+        .picker-item,
+        .tier-option {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <a href="index.html" class="back"><span class='material-symbols-outlined' style='font-size:18px;transform:rotate(180deg);vertical-align:middle;'>arrow_forward_ios</span></a>
+        Subordinate data
+    </div>
+    <div class="search-bar">
+        <input type="text" placeholder="Search subordinate UID">
+        <button aria-label="Search">
+            <svg width="15" height="15" viewBox="0 0 20 20" fill="white" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="9" cy="9" r="7" stroke="white" stroke-width="2" fill="none"/>
+                <line x1="14" y1="14" x2="19" y2="19" stroke="white" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+        </button>
+    </div>
+    <div class="filters">
+        <div id="tierSelectBtn" style="flex:1;position:relative;">
+            <button id="openTierModal" style="width:100%;padding:8px 0;border-radius:6px;border:1px solid #eee;background:#fff;font-size:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+                <span id="selectedTier">All</span>
+                <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;">expand_more</span>
+            </button>
+        </div>
+        <div id="date-select" style="flex:1;position:relative;">
+            <button id="openDateModal" style="width:100%;padding:8px 0;border-radius:6px;border:1px solid #eee;background:#fff;font-size:12px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;">
+                <span id="selectedDate">2025-07-02</span>
+                <span class="material-symbols-outlined" style="font-size:18px;vertical-align:middle;">expand_more</span>
+            </button>
+        </div>
+    </div>
+    <div class="stats-box" id="statsBox">
+        <div class="stat">
+            <div class="value deposit-number" id="depositNumber">0</div>
+            <div>Deposit number</div>
+        </div>
+        <div class="stat">
+            <div class="value deposit-amount" id="depositAmount">0</div>
+            <div>Deposit amount</div>
+        </div>
+        <div class="stat">
+            <div class="value" id="numBettors">0</div>
+            <div>Number of bettors</div>
+        </div>
+        <div class="stat">
+            <div class="value" id="totalBet">0</div>
+            <div>Total bet</div>
+        </div>
+        <div class="stat">
+            <div class="value" id="numFirstDeposit">04455</div>
+            <div>Number of people making first deposit</div>
+        </div>
+        <div class="stat">
+            <div class="value" id="firstDepositAmount">0</div>
+            <div>First deposit amount</div>
+        </div>
+    </div>
+    <div id="uidCards">
+        <!-- UID cards will be dynamically inserted here -->
+    </div>
+    <div class="loading-spinner" id="loadingSpinner"></div>
+    <div class="no-data" id="noData">
+        Yesterday's commission
+    </div>
+
+    <!-- Date Picker Modal -->
+    <div class="date-modal-overlay" id="dateModalOverlay">
+        <div class="date-modal">
+            <div class="date-modal-header">
+                <span class="cancel" id="cancelDate">Cancel</span>
+                <span class="title">Choose a date</span>
+                <span class="confirm" id="confirmDate">Confirm</span>
+            </div>
+            <div class="date-picker-row">
+                <div class="picker-col" id="yearCol"></div>
+                <div class="picker-col" id="monthCol"></div>
+                <div class="picker-col" id="dayCol"></div>
+                <div class="picker-highlight"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tier Modal (visual only, now scrollable) -->
+    <div class="date-modal-overlay" id="tierModalOverlay">
+        <div class="date-modal" style="min-height: 270px; max-width: 350px;">
+            <div class="date-modal-header">
+                <span class="cancel" id="cancelTier" style="color:#888;cursor:pointer;">Cancel</span>
+                <span class="title" style="color:#111a3a;font-size:18px;font-weight:bold;flex:1;text-align:center;">Choose Tier</span>
+                <span class="confirm" id="confirmTier" style="color:#1976d2;cursor:pointer;">Confirm</span>
+            </div>
+            <div class="tier-picker-row" style="position:relative;height:180px;margin:0 10px;">
+                <div class="tier-picker-col" id="tierCol" style="flex:1;display:flex;flex-direction:column;align-items:center;overflow-y:scroll;height:180px;scrollbar-width:none;-ms-overflow-style:none;position:relative;">
+                    <!-- Options will be filled by JS -->
+                </div>
+                <div class="picker-highlight"></div>
+            </div>
+        </div>
+    </div>
+    <script>
+        // --- Date Picker Logic ---
+        let pickerState = { year: 2025, month: 7, day: 02 };
+
+        const openDateModal = document.getElementById('openDateModal');
+        const dateModalOverlay = document.getElementById('dateModalOverlay');
+        const cancelDate = document.getElementById('cancelDate');
+        const confirmDate = document.getElementById('confirmDate');
+        const selectedDateSpan = document.getElementById('selectedDate');
+        const yearCol = document.getElementById('yearCol');
+        const monthCol = document.getElementById('monthCol');
+        const dayCol = document.getElementById('dayCol');
+
+        // Data for specific dates
+        const statsData = {
+            "2025-07-02": {
+                "All": {
+                    depositNumber: "data here",
+                    depositAmount: "data here",
+                    numBettors: "data here",
+                    totalBet: "data here",
+                    numFirstDeposit: "data here",
+                    firstDepositAmount: "data here"
+                },
+                "Tier 1": {
+                    depositNumber: "data here",
+                    depositAmount: "data here",
+                    numBettors: "data here",
+                    totalBet: "data here",
+                    numFirstDeposit: "data here",
+                    firstDepositAmount: "data here"
+                },
+                uidCards: [
+                    { uid: "data here", level: "data here", depositAmount: "data here", betAmount: "data here", commission: "data here", time: "data here" }
+                ]
+            }
+        };
+
+        function pad(n) { return n.toString().padStart(2, '0'); }
+
+        function fillPickerCol(col, arr, selected) {
+            col.innerHTML = '';
+            
+            // Add empty padding items before
+            for (let i = 0; i < 3; i++) {
+                const padDiv = document.createElement('div');
+                padDiv.className = 'picker-item pad';
+                padDiv.innerHTML = '&nbsp;';
+                padDiv.style.visibility = 'hidden';
+                col.appendChild(padDiv);
+            }
+            
+            arr.forEach(val => {
+                const div = document.createElement('div');
+                div.className = 'picker-item' + (val == selected ? ' selected' : '');
+                div.textContent = val;
+                div.dataset.value = val;
+                col.appendChild(div);
+            });
+            
+            // Add empty padding items after
+            for (let i = 0; i < 3; i++) {
+                const padDiv = document.createElement('div');
+                padDiv.className = 'picker-item pad';
+                padDiv.innerHTML = '&nbsp;';
+                padDiv.style.visibility = 'hidden';
+                col.appendChild(padDiv);
+            }
+        }
+
+        function scrollToSelected(col) {
+            const sel = col.querySelector('.selected');
+            if (sel) {
+                col.scrollTop = sel.offsetTop - col.clientHeight/2 + sel.clientHeight/2;
+            }
+        }
+
+        function updatePickerCols({year=true, month=true, day=true} = {}) {
+            const maxDate = new Date(2025, 6, 02); // June 5, 2025 (month is 0-based)
+            
+            // Only refill columns if needed
+            if (year) {
+                let years = [];
+                for(let y=2022; y<=2025; y++) years.push(y);
+                fillPickerCol(yearCol, years, pickerState.year);
+            }
+            if (month) {
+                let months = [];
+                for(let m=1; m<=12; m++) {
+                    // Skip future months in max year
+                    if (pickerState.year === maxDate.getFullYear() && m > maxDate.getMonth() + 1) continue;
+                    months.push(pad(m));
+                }
+                fillPickerCol(monthCol, months, pad(pickerState.month));
+            }
+            if (day) {
+                let daysInMonth = new Date(pickerState.year, pickerState.month, 0).getDate();
+                let days = [];
+                for(let d=1; d<=daysInMonth; d++) {
+                    // Skip future days in max year and month
+                    if (pickerState.year === maxDate.getFullYear() && 
+                        pickerState.month === maxDate.getMonth() + 1 && 
+                        d > maxDate.getDate()) continue;
+                    days.push(pad(d));
+                }
+                fillPickerCol(dayCol, days, pad(pickerState.day));
+            }
+            setTimeout(() => {
+                scrollToSelected(yearCol);
+                scrollToSelected(monthCol);
+                scrollToSelected(dayCol);
+            }, 10);
+        }
+
+        function setSelected(col, value) {
+            Array.from(col.children).forEach(child => {
+                if (!child.classList.contains('pad') && child.dataset.value == value) {
+                    child.classList.add('selected');
+                } else {
+                    child.classList.remove('selected');
+                }
+            });
+        }
+
+        function handlePickerClick(col, key, isDayCol = false) {
+            col.addEventListener('click', e => {
+                if (e.target.classList.contains('picker-item') && !e.target.classList.contains('pad')) {
+                    const newValue = parseInt(e.target.dataset.value);
+                    const maxDate = new Date(2025, 6, 02); // June 5, 2025 (month is 0-based)
+                    
+                    let isValid = true;
+                    // Check if selection would exceed max date
+                    if (key === 'year' && newValue > maxDate.getFullYear()) {
+                        isValid = false;
+                    } else if (key === 'month' && 
+                              pickerState.year === maxDate.getFullYear() && 
+                              newValue > maxDate.getMonth() + 1) {
+                        isValid = false;
+                    } else if (key === 'day' && 
+                              pickerState.year === maxDate.getFullYear() && 
+                              pickerState.month === maxDate.getMonth() + 1 && 
+                              newValue > maxDate.getDate()) {
+                        isValid = false;
+                    }
+                    
+                    if (isValid) {
+                        pickerState[key] = newValue;
+                    setSelected(col, e.target.dataset.value);
+                    if (key === 'year' || key === 'month') {
+                        // If year or month changes, update days column
+                        updatePickerCols({year:false, month:false, day:true});
+                        }
+                    }
+                }
+            });
+            col.addEventListener('scroll', () => {
+                clearTimeout(col._scrollTimeout);
+                col._scrollTimeout = setTimeout(() => {
+                    let items = Array.from(col.children).filter(item => !item.classList.contains('pad'));
+                    let closest = items.reduce((a, b) => {
+                        return Math.abs(a.offsetTop - col.scrollTop - col.clientHeight/2 + a.clientHeight/2) <
+                               Math.abs(b.offsetTop - col.scrollTop - col.clientHeight/2 + b.clientHeight/2) ? a : b;
+                    });
+                    
+                    const newValue = parseInt(closest.dataset.value);
+                    const maxDate = new Date(2025, 6, 02); // June 5, 2025 (month is 0-based)
+                    
+                    let isValid = true;
+                    // Check if scroll would exceed max date
+                    if (key === 'year' && newValue > maxDate.getFullYear()) {
+                        isValid = false;
+                    } else if (key === 'month' && 
+                              pickerState.year === maxDate.getFullYear() && 
+                              newValue > maxDate.getMonth() + 1) {
+                        isValid = false;
+                    } else if (key === 'day' && 
+                              pickerState.year === maxDate.getFullYear() && 
+                              pickerState.month === maxDate.getMonth() + 1 && 
+                              newValue > maxDate.getDate()) {
+                        isValid = false;
+                    }
+                    
+                    if (isValid) {
+                        pickerState[key] = newValue;
+                    setSelected(col, closest.dataset.value);
+                    if ((key === 'year' || key === 'month') && isDayCol) {
+                        updatePickerCols({year:false, month:false, day:true});
+                        }
+                    }
+                }, 100);
+            });
+        }
+
+        handlePickerClick(yearCol, 'year');
+        handlePickerClick(monthCol, 'month');
+        handlePickerClick(dayCol, 'day', true);
+
+        openDateModal.onclick = function() {
+            // Set pickerState to current date
+            const [y, m, d] = selectedDateSpan.textContent.split('-');
+            pickerState.year = parseInt(y);
+            pickerState.month = parseInt(m);
+            pickerState.day = parseInt(d);
+            updatePickerCols();
+            dateModalOverlay.classList.add('active');
+        };
+        cancelDate.onclick = function() {
+            dateModalOverlay.classList.remove('active');
+        };
+        let lastStats = {
+            depositNumber: 0,
+            depositAmount: 0,
+            numBettors: 0,
+            totalBet: 0,
+            numFirstDeposit: 0,
+            firstDepositAmount: 0
+        };
+
+        function updateStatsBox(data) {
+            // If data is coming directly from statsData, it will have tier structure
+            const tierData = data[selectedTier] || {
+                depositNumber: 0,
+                depositAmount: 0,
+                numBettors: 0,
+                totalBet: 0,
+                numFirstDeposit: 0,
+                firstDepositAmount: 0
+            };
+            
+            document.getElementById('depositNumber').textContent = tierData.depositNumber;
+            document.getElementById('depositAmount').textContent = tierData.depositAmount;
+            document.getElementById('numBettors').textContent = tierData.numBettors;
+            document.getElementById('totalBet').textContent = tierData.totalBet;
+            document.getElementById('numFirstDeposit').textContent = tierData.numFirstDeposit;
+            document.getElementById('firstDepositAmount').textContent = tierData.firstDepositAmount;
+            
+            // UID cards are at the date level, not the tier level
+            updateUIDCards(data.uidCards || []);
+        }
+
+        function updateUIDCards(uidCards) {
+            const uidCardsContainer = document.getElementById('uidCards');
+            uidCardsContainer.innerHTML = '';
+            
+            if (uidCards && uidCards.length > 0) {
+                uidCards.forEach(card => {
+                    const cardHTML = `
+                        <div style="background: white; margin: 15px; padding: 15px; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <div style="display: flex; align-items: center; gap: 8px;">
+                                    <span style="font-weight: 500;">UID:${card.uid}</span>
+                                    <img src="icons/copy-icon.png" alt="Copy" style="width: 16px; height: 16px; opacity: 0.6; cursor: pointer;" 
+                                        onclick="copyToClipboard('${card.uid}')">
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">Level</span>
+                                <span>${card.level}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">Deposit amount</span>
+                                <span style="color: #1976d2;">${card.depositAmount}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">Bet amount</span>
+                                <span style="color: #1976d2;">${card.betAmount}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span style="color: #666;">Commission</span>
+                                <span style="color: #1976d2;">${card.commission}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: #666;">Time</span>
+                                <span style="color: #999; font-size: 11px;">${card.time}</span>
+                            </div>
+                        </div>
+                    `;
+                    uidCardsContainer.innerHTML += cardHTML;
+                });
+            }
+        }
+
+        // Add this function for copy functionality
+        function copyToClipboard(text) {
+            navigator.clipboard.writeText(text).then(() => {
+                // Optional: Show a brief feedback message
+                alert('UID copied to clipboard');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+            });
+        }
+
+        confirmDate.onclick = function() {
+            const y = pickerState.year, m = pad(pickerState.month), d = pad(pickerState.day);
+            const dateStr = `${y}-${m}-${d}`;
+            selectedDateSpan.textContent = dateStr;
+            dateModalOverlay.classList.remove('active');
+
+            // Show loading spinner
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'block';
+
+            // Keep previous data for 0.3s, then update (increased by 0.2s)
+            setTimeout(() => {
+                const data = statsData[dateStr] || {
+                    "All": {
+                    depositNumber: 0,
+                    depositAmount: 0,
+                    numBettors: 0,
+                    totalBet: 0,
+                    numFirstDeposit: 0,
+                    firstDepositAmount: 0
+                    },
+                    uidCards: []
+                };
+                updateStatsBox(data);
+                spinner.style.display = 'none';
+                document.getElementById('noData').style.display = 'none';
+                if (!statsData[dateStr]) {
+                document.getElementById('noData').style.display = '';
+                }
+            }, 300);
+        };
+
+        // --- Tier Modal Logic (visual only, scrollable) ---
+        const openTierModal = document.getElementById('openTierModal');
+        const tierModalOverlay = document.getElementById('tierModalOverlay');
+        const cancelTier = document.getElementById('cancelTier');
+        const confirmTier = document.getElementById('confirmTier');
+        const selectedTierSpan = document.getElementById('selectedTier');
+        const tierCol = document.getElementById('tierCol');
+        let selectedTier = "All";
+        let tempSelectedTier = "All";
+        const tierList = ["All", "Tier 1", "Tier 2", "Tier 3", "Tier 4", "Tier 5", "Tier 6"];
+
+        function fillTierCol(selected) {
+            tierCol.innerHTML = '';
+            
+            // Add padding items before
+            for (let i = 0; i < 3; i++) {
+                const padDiv = document.createElement('div');
+                padDiv.className = 'tier-option pad';
+                padDiv.innerHTML = '&nbsp;';
+                padDiv.style.visibility = 'hidden';
+                tierCol.appendChild(padDiv);
+            }
+            
+            tierList.forEach(tier => {
+                const div = document.createElement('div');
+                div.className = 'tier-option' + (tier === selected ? ' selected' : '');
+                div.textContent = tier;
+                div.dataset.tier = tier;
+                tierCol.appendChild(div);
+            });
+            
+            // Add padding items after
+            for (let i = 0; i < 3; i++) {
+                const padDiv = document.createElement('div');
+                padDiv.className = 'tier-option pad';
+                padDiv.innerHTML = '&nbsp;';
+                padDiv.style.visibility = 'hidden';
+                tierCol.appendChild(padDiv);
+            }
+        }
+
+        function scrollToSelectedTier() {
+            const sel = tierCol.querySelector('.selected');
+            if (sel) {
+                tierCol.scrollTop = sel.offsetTop - tierCol.clientHeight/2 + sel.clientHeight/2;
+            }
+        }
+
+        openTierModal.onclick = function(e) {
+            tempSelectedTier = selectedTier;
+            fillTierCol(selectedTier);
+            setTimeout(scrollToSelectedTier, 10);
+            tierModalOverlay.classList.add('active');
+        };
+
+        cancelTier.onclick = function() {
+            tierModalOverlay.classList.remove('active');
+        };
+
+        confirmTier.onclick = function() {
+            selectedTier = tempSelectedTier;
+            selectedTierSpan.textContent = selectedTier;
+            tierModalOverlay.classList.remove('active');
+
+            const spinner = document.getElementById('loadingSpinner');
+            spinner.style.display = 'block';
+
+            // Get current date from the date span
+            const currentDate = selectedDateSpan.textContent;
+
+            setTimeout(() => {
+                const data = statsData[currentDate] || {
+                    "All": {
+                        depositNumber: 0,
+                        depositAmount: 0,
+                        numBettors: 0,
+                        totalBet: 0,
+                        numFirstDeposit: 0,
+                        firstDepositAmount: 0
+                    },
+                    uidCards: []
+                };
+                
+                updateStatsBox(data);
+                spinner.style.display = 'none';
+            }, 300);
+        };
+
+        // Delegate click and scroll for tierCol
+        tierCol.onclick = function(e) {
+            if (e.target.classList.contains('tier-option') && !e.target.classList.contains('pad')) {
+                Array.from(tierCol.children).forEach(o => {
+                    o.classList.remove('selected');
+                    o.style.color = "#b0b0b0";
+                    o.style.fontWeight = "normal";
+                });
+                e.target.classList.add('selected');
+                e.target.style.color = "#222";
+                e.target.style.fontWeight = "bold";
+                tempSelectedTier = e.target.dataset.tier;
+            }
+        };
+        tierCol.addEventListener('scroll', () => {
+            clearTimeout(tierCol._scrollTimeout);
+            tierCol._scrollTimeout = setTimeout(() => {
+                let items = Array.from(tierCol.children).filter(item => !item.classList.contains('pad'));
+                let closest = items.reduce((a, b) => {
+                    return Math.abs(a.offsetTop - tierCol.scrollTop - tierCol.clientHeight/2 + a.clientHeight/2) <
+                           Math.abs(b.offsetTop - tierCol.scrollTop - tierCol.clientHeight/2 + b.clientHeight/2) ? a : b;
+                });
+                Array.from(tierCol.children).forEach(o => {
+                    o.classList.remove('selected');
+                    o.style.color = "#b0b0b0";
+                    o.style.fontWeight = "normal";
+                });
+                closest.classList.add('selected');
+                closest.style.color = "#222";
+                closest.style.fontWeight = "bold";
+                tempSelectedTier = closest.dataset.tier;
+            }, 100);
+        });
+
+        window.addEventListener('DOMContentLoaded', () => {
+            // Get the initial date from the selectedDateSpan
+            const initialDate = selectedDateSpan.textContent;
+            
+            // Get the data for the initial date
+            const initialData = statsData[initialDate] || {
+                "All": {
+                    depositNumber: 464,
+                    depositAmount: 4440,
+                    numBettors: 4440,
+                    totalBet: 4440,
+                    numFirstDeposit:4440,
+                    firstDepositAmount: 4440
+                },
+                uidCards: []
+            };
+            
+            // Update both the stats box and UID cards
+            updateStatsBox(initialData);
+            updateUIDCards(initialData.uidCards || []);
+        });
+
+        // Add this after your existing script
+        function isDateValid(year, month, day) {
+            const selectedDate = new Date(year, month - 1, day);
+            const maxDate = new Date(2025, 6, 02); // June 5, 2025 (months are 0-based)
+            
+            return selectedDate <= maxDate;
+        }
+
+        // Modify your date picker's click/change handlers
+        const dateSelectors = document.querySelectorAll('.date-selector');
+        dateSelectors.forEach(selector => {
+            selector.addEventListener('change', function(e) {
+                const year = parseInt(document.querySelector('[name="year"]').value);
+                const month = parseInt(document.querySelector('[name="month"]').value);
+                const day = parseInt(document.querySelector('[name="day"]').value);
+
+                if (!isDateValid(year, month, day)) {
+                    alert('Cannot select future dates');
+                    // Reset to today's date
+                    document.querySelector('[name="year"]').value = '2025';
+                    document.querySelector('[name="month"]').value = '7';
+                    document.querySelector('[name="day"]').value = '02';
+                    e.preventDefault();
+                    return false;
+                }
+            });
+        });
+
+        // Additionally, set max values for the date inputs
+        document.querySelector('[name="year"]').max = '2025';
+        document.querySelector('[name="month"]').max = '7';
+        document.querySelector('[name="day"]').max = '02';
+    </script>
+</body>
+</html>
